@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Car from "./Car";
 
@@ -21,6 +22,15 @@ export default function Hero() {
     const media = gsap.matchMedia();
     // MatchMedia owns cleanup when the accessibility preference changes.
     media.add("(prefers-reduced-motion: no-preference)", () => {
+      // Inertia scrolling: Lenis eases wheel/touch input, GSAP's ticker drives it,
+      // and ScrollTrigger reads the smoothed position so the car never jitters.
+      const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, smoothWheel: true });
+      lenis.on("scroll", ScrollTrigger.update);
+      const tick = (time) => lenis.raf(time * 1000);
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+      const toTop = (e) => { const a = e.target.closest('a[href="#top"]'); if (a) { e.preventDefault(); lenis.scrollTo(0, { duration: 1.6 }); } };
+      document.addEventListener("click", toTop);
       const context = gsap.context(() => {
         gsap.timeline({ defaults: { ease: "power3.out" } })
           .from(".masthead", { y: -12, opacity: 0, duration: 0.7 })
@@ -37,7 +47,7 @@ export default function Hero() {
           defaults: { ease: "none" },
           scrollTrigger: {
             trigger: root.current, start: "top top", end: "bottom bottom",
-            scrub: 0.85, invalidateOnRefresh: true,
+            scrub: 0.35, invalidateOnRefresh: true,
           },
         });
         drive
@@ -56,7 +66,12 @@ export default function Hero() {
           .to(".chapter-1", { opacity: 0, y: -10, duration: 0.08 }, 0.62)
           .fromTo(".chapter-2", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.08 }, 0.7);
       }, root);
-      return () => context.revert();
+      return () => {
+        document.removeEventListener("click", toTop);
+        gsap.ticker.remove(tick);
+        lenis.destroy();
+        context.revert();
+      };
     });
     return () => media.revert();
   }, []);
