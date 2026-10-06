@@ -86,3 +86,22 @@ a:focus-visible { outline: 2px solid var(--orange); outline-offset: 6px; }
   .vehicle { will-change: auto; }
   *, *::before, *::after { transition: none !important; }
 }
+/* Compact landscape layout keeps the whole hero above the fold. */
+@media (max-height: 500px) and (min-width: 600px) {
+  .masthead { padding: 8px 0; }
+  .brand { font-size: 20px; }
+  .headline-wrap { padding: 8px 0 0; }
+  .headline-wrap > p { display: none; }
+  .headline { font-size: 26px; }
+  .stage { min-height: 110px; }
+  .vehicle { width: 190px; height: 87.7px; margin-top: -43.85px; }
+  .road { height: 62%; top: 12%; }
+  .road-label { top: 76%; }
+  .road-word { top: 0; font-size: 65px; }
+  .chapter { font-size: 9px; }
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: 10px; gap: 18px; }
+  .stat { padding-top: 5px; }
+  .stat-value { font-size: 28px; margin: 4px 0; }
+  .stat-label { font-size: 9px; }
+  .hero-footer { padding: 9px 0; }
+}
